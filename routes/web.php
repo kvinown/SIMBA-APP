@@ -3,15 +3,15 @@
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
-    return view('admin.presence');
+    return view('presence.presence');
 })->name('presence');
 
 Route::get('/presence_detail', function () {
-    return view('admin.presence_detail');
+    return view('presence.presence_detail');
 })->name('presence_detail');
 
 Route::get('/presence_create', function () {
-    return view('admin.presence_create');
+    return view('presence.presence_create');
 })->name('presence_create');
 
 Route::get('/starter', function () {
