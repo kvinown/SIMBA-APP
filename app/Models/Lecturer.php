@@ -21,16 +21,25 @@ class Lecturer extends Model
         'status',
         'department_id',
         'role_id',
+        'created_at',
+        'updated_at'
     ];
+
+    public $timestamps = true;
 
     protected $primaryKey = 'nik';
 
     public function role() : BelongsTo
     {
-        return $this->belongsTo(Role::class, 'role_id');
+        return $this->belongsTo(Role::class, 'role_id', 'id');
     }
     public function department() : BelongsTo
     {
-        return $this->belongsTo(Department::class, 'department_id');
+        return $this->belongsTo(Department::class, 'department_id', 'id');
+    }
+
+    public function schedules(): HasMany
+    {
+        return $this->hasMany(Schedule::class, 'lecturer_nik', 'nik');
     }
 }

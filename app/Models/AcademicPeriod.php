@@ -4,26 +4,25 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
-class Student extends Model
+class AcademicPeriod extends Model
 {
     use HasFactory;
 
-    protected  $table = 'student';
+    protected $table = 'academic_period';
 
     protected $fillable = [
         'name',
         'active',
-        'department_id',
         'created_at',
-        'updated_at'
+        'updated_at',
     ];
 
     public $timestamps = true;
 
-    public function department(): BelongsTo
+    public function schedules(): HasMany
     {
-        return $this->belongsTo(Department::class, 'department_id', 'id');
+        return $this->hasMany(Schedule::class, 'academic_period_id', 'id');
     }
 }

@@ -13,12 +13,16 @@ class Role extends Model
     protected $table = 'role';
 
     protected $fillable = [
-        'name'
+        'name',
+        'created_at',
+        'updated_at'
     ];
+
+    public $timestamps = true;
 
     public function lecturers() : HasMany
     {
-        return $this->hasMany(Lecturer::class, 'role_id');
+        return $this->hasMany(Lecturer::class, 'role_id', 'id');
     }
 }
 

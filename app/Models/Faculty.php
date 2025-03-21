@@ -13,11 +13,15 @@ class Faculty extends Model
     protected $table = 'faculty';
 
     protected $fillable = [
-        'name'
+        'name',
+        'created_at',
+        'updated_at'
     ];
+
+    public $timestamps = true;
 
     public function departments(): HasMany
     {
-        return $this->hasMany(Department::class, 'faculty_id');
+        return $this->hasMany(Department::class, 'faculty_id', 'id');
     }
 }
