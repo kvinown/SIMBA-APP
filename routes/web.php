@@ -1,23 +1,20 @@
 <?php
 
+use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
-    return view('presence.presence');
-})->name('presence');
-
-Route::get('/presence_detail', function () {
-    return view('presence.presence_detail');
-})->name('presence_detail');
-
-Route::get('/presence_create', function () {
-    return view('presence.presence_create');
-})->name('presence_create');
-
-Route::get('/starter', function () {
-    return view('starter');
+    return view('welcome');
 });
 
-Route::post('/logout', function () {
-    return redirect('/');
-})->name('logout');
+Route::get('/dashboard', function () {
+    return view('dashboard');
+})->middleware(['auth', 'verified'])->name('dashboard');
+
+Route::middleware('auth')->group(function () {
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+});
+
+require __DIR__.'/auth.php';
