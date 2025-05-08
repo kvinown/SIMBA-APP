@@ -13,6 +13,7 @@ class AcademicPeriod extends Model
     protected $table = 'academic_period';
 
     protected $fillable = [
+        'id',
         'name',
         'active',
         'created_at',

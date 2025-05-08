@@ -40,20 +40,32 @@ class ScheduleDetail extends Model
     /**
      * Relasi ke model Schedule
      */
-    public function schedule(): BelongsTo
+    public function getScheduleAttribute()
     {
-        return $this->belongsTo(Schedule::class, [
-            'course_id',
-            'lecturer_nik',
-            'academic_period_id',
-            'course_class',
-            'type'
-        ], [
-            'course_id',
-            'lecturer_nik',
-            'academic_period_id',
-            'course_class',
-            'type'
-        ]);
+        return Schedule::where('course_id', $this->course_id)
+            ->where('lecturer_nik', $this->lecturer_nik)
+            ->where('academic_period_id', $this->academic_period_id)
+            ->where('course_class', $this->course_class)
+            ->where('type', $this->type)
+            ->first();
+    }
+    public function course() : BelongsTo
+    {
+        return $this->belongsTo(Course::class, 'course_id', 'id');
+    }
+
+    public function lecturer() : BelongsTo
+    {
+        return $this->belongsTo(Lecturer::class, 'lecturer_nik', 'nik');
+    }
+
+    public function academicPeriod() : BelongsTo
+    {
+        return $this->belongsTo(AcademicPeriod::class, 'academic_period_id', 'id');
+    }
+
+    public function room(): BelongsTo
+    {
+        return $this->belongsTo(Room::class, 'room_id', 'id');
     }
 }

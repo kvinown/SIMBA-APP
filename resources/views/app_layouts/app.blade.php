@@ -19,6 +19,7 @@
         <nav class="navbar navbar-expand-lg navbar-light bg-light mb-4">
             <button class="btn btn-primary" id="sidebarToggle">☰</button>
         </nav>
+        <x-back-button>Back</x-back-button>
         @yield('content')
     </div>
 </div>

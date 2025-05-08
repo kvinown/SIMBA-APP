@@ -16,11 +16,14 @@ class AttendanceRecord extends Model
 
     // Kolom yang bisa diisi secara massal
     protected $fillable = [
+        'schedule_detail_student_id',
+        'schedule_detail_week_num',
+        'schedule_detail_course_id',
+        'schedule_detail_lecturer_nik',
+        'schedule_detail_academic_period_id',
+        'schedule_detail_course_class',
+        'schedule_detail_type',
         'student_id',
-        'week_num',
-        'course_id',
-        'lecturer_nik',
-        'academic_period_id',
         'timestamp',
         'status'
     ];
@@ -38,18 +41,4 @@ class AttendanceRecord extends Model
     /**
      * Relasi ke tabel ScheduleDetail
      */
-    public function scheduleDetail()
-    {
-        return $this->belongsTo(ScheduleDetail::class, [
-            'week_num',
-            'course_id',
-            'lecturer_nik',
-            'academic_period_id'
-        ], [
-            'week_num',
-            'course_id',
-            'lecturer_nik',
-            'academic_period_id'
-        ]);
-    }
 }

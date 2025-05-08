@@ -52,4 +52,5 @@ class Schedule extends Model
     {
         return $this->belongsTo(Room::class, 'room_id', 'id');
     }
+
 }

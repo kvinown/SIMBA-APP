@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('app_layouts.app')
 
 @section('content')
     <div class="container">
@@ -32,7 +32,7 @@
 
         <!-- Tombol Add Presence -->
         <div class="mb-3">
-            <a class="btn btn-primary" href="{{ route('presence_create') }}">+ Add Presence</a>
+            <a class="btn btn-primary" href="">+ Add Presence</a>
         </div>
 
         <!-- Tabel Presence -->
@@ -70,7 +70,7 @@
                         <td><a href="#">Download</a></td>
                         <td>{{ $presence['input_date'] }}</td>
                         <td>
-                            <a class="btn btn-sm btn-info" href="{{ route('presence_detail') }}">Detail</a>
+                            <a class="btn btn-sm btn-info" href="">Detail</a>
                         </td>
                         <td>
                             @if ($presence['checked'])
