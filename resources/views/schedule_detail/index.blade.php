@@ -21,30 +21,57 @@
         <!-- Form untuk memilih Academic Period -->
         <div class="card mb-4">
             <div class="card-body">
-                <table class="table table-borderless">
-                    <tbody>
-                    <tr>
-                        <td><strong>Period:</strong></td>
-                        <td>{{ $period->name ?? $info['academic_period_id'] }}</td>
-                    </tr>
-                    <tr>
-                        <td><strong>Lecturer:</strong></td>
-                        <td>{{ $lecturer->name ?? $info['lecturer_nik'] }}</td>
-                    </tr>
-                    <tr>
-                        <td><strong>Course:</strong></td>
-                        <td>{{ $course->name ?? $info['course_id'] }}</td>
-                    </tr>
-                    <tr>
-                        <td><strong>Class:</strong></td>
-                        <td>{{ $info['course_class'] }}</td>
-                    </tr>
-                    <tr>
-                        <td><strong>Type:</strong></td>
-                        <td>{{ ucfirst($info['type']) }}</td>
-                    </tr>
-                    </tbody>
-                </table>
+                <div class="row">
+                    <!-- Kolom Kiri: Informasi -->
+                    <div class="col-md-6">
+                        <table class="table table-borderless">
+                            <tbody>
+                            <tr>
+                                <td><strong>Period:</strong></td>
+                                <td>{{ $period->name ?? $info['academic_period_id'] }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Lecturer:</strong></td>
+                                <td>{{ $lecturer->name ?? $info['lecturer_nik'] }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Course:</strong></td>
+                                <td>{{ $course->name ?? $info['course_id'] }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Class:</strong></td>
+                                <td>{{ $info['course_class'] }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Type:</strong></td>
+                                <td>{{ ucfirst($info['type']) }}</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Kolom Kanan: Student Count Bar Chart -->
+                    <div class="col-md-6">
+                        <h5>Student Count per Week</h5>
+                        <div class="d-flex align-items-end justify-content-start gap-3 mt-5" style="height: 180px;">
+                            @foreach($details as $detail)
+                                @php
+                                    $percent = $maxStudentCount > 0
+                                        ? ($detail->student_count / $maxStudentCount) * 100
+                                        : 0;
+                                @endphp
+                                <div class="text-center">
+                                    <div class="vertical-progress d-flex flex-column-reverse" title="{{ $detail->student_count }} students">
+                                        <div class="vertical-progress-bar" style="height: {{ $percent }}%;">{{$percent}}%</div>
+                                    </div>
+                                    <small class="d-block mt-1"><strong>W{{ $detail->week_num }}</strong></small>
+                                    <small>{{ $detail->student_count }}</small>
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+
+                </div>
             </div>
         </div>
 

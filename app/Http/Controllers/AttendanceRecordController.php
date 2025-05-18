@@ -7,7 +7,7 @@ use App\Models\AttendanceRecord;
 use App\Models\Course;
 use App\Models\Enrollment;
 use App\Models\Lecturer;
-use App\Models\ScheduleDetail;
+use App\Models\Schedule;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 
@@ -69,9 +69,16 @@ class AttendanceRecordController extends Controller
         ])->max('schedule_detail_week_num');
 
         $nextWeekNum = $latestWeekNum ? $latestWeekNum + 1 : 1;
+        $schedule = Schedule::where('course_id', $data['course_id'])
+            ->where('lecturer_nik', $data['lecturer_nik'])
+            ->where('academic_period_id', $data['academic_period_id'])
+            ->where('course_class', $data['course_class'])
+            ->where('type', $data['type'])
+            ->first(); // <- ini penting!
 
         return view('attendance_record.create', [
             'students' => $students,
+            'schedule' => $schedule,
             'data' => $data,
             'studentCount' => $studentCount,
             'nextWeekNum' => $nextWeekNum,
@@ -157,7 +164,16 @@ class AttendanceRecordController extends Controller
             'status' => $validated['status'],
         ]);
 
-        return redirect()->back()->with('success', 'Presensi berhasil diperbarui.');
+        if ($validated['status'] == 1)
+        {
+            $validated['student_count'] = 1;
+        }
+        else
+        {
+            $validated['student_count'] = -1;
+        }
+
+        return redirect()->route('schedule-detail.update')->withInput($validated);
     }
 
 

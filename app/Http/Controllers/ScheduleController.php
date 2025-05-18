@@ -17,22 +17,28 @@ class ScheduleController extends Controller
         $nik = Auth::user()->nik;
         $academicPeriodId = $request->query('academic_period_id');
 
-        $query = Schedule::where('lecturer_nik', $nik);
+        $query = Schedule::with(['course', 'room', 'academicPeriod']) // Eager loading
+        ->where('lecturer_nik', $nik);
 
         if ($academicPeriodId) {
             $query->where('academic_period_id', $academicPeriodId);
         }
 
-        $schedule = $query->get();
-        $period = AcademicPeriod::all();
-        $lecturer = Auth::user()->name;
+        $schedules = $query->get();
+
+        // Group berdasarkan nama course
+        $groupedSchedules = $schedules->groupBy(function ($schedule) {
+            return $schedule->course->name ?? 'Unknown Course';
+        });
+
+        $periods = AcademicPeriod::all();
 
         return view('schedule.index', [
-            'schedules' => $schedule,
-            'periods' => $period,
-            'lecturer' => $lecturer,
+            'groupedSchedules' => $groupedSchedules,
+            'periods' => $periods,
         ]);
     }
+
 
 
     /**

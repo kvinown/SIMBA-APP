@@ -32,6 +32,7 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/schedule-detail', [\App\Http\Controllers\ScheduleDetailController::class, 'index'])->name('schedule-detail.index');
     Route::post('/schedule-detail/store', [\App\Http\Controllers\ScheduleDetailController::class, 'store'])->name('schedule-detail.store');
+    Route::get('/schedule-detail/update', [\App\Http\Controllers\ScheduleDetailController::class, 'update'])->name('schedule-detail.update');
 
     Route::get('/enrollment', [\App\Http\Controllers\EnrollmentController::class, 'index'])->name('enrollment.index');
 

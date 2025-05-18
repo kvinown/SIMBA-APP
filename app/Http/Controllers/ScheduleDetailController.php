@@ -4,9 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Models\AcademicPeriod;
 use App\Models\Course;
+use App\Models\Enrollment;
 use App\Models\Lecturer;
 use App\Models\ScheduleDetail;
 use Illuminate\Http\Request;
+use Nette\Utils\Arrays;
 
 class ScheduleDetailController extends Controller
 {
@@ -30,12 +32,23 @@ class ScheduleDetailController extends Controller
         $lecturer = Lecturer::where('nik', $validated['lecturer_nik'])->first();
         $period = AcademicPeriod::find($validated['academic_period_id']);
 
+        $students = Enrollment::where('schedule_course_id', $validated['course_id'])
+            ->where('schedule_lecturer_nik', $validated['lecturer_nik'])
+            ->where('schedule_academic_period_id', $validated['academic_period_id'])
+            ->where('schedule_course_class', $validated['course_class'])
+            ->where('schedule_type', $validated['type'])
+            ->with('student') // penting: eager load relasi
+            ->get();
+
+        $maxStudentCount = $students->count();
+
         return view('schedule_detail.index', [
             'details' => $details,
             'info' => $validated,
             'course' => $course,
             'lecturer' => $lecturer,
             'period' => $period,
+            'maxStudentCount' => $maxStudentCount,
         ]);
     }
 
@@ -96,10 +109,32 @@ class ScheduleDetailController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request)
     {
-        //
+        $data = $request->old();
+        $studentCount = ScheduleDetail::where([
+            'week_num' => $data['schedule_detail_week_num'],
+            'course_id' => $data['schedule_detail_course_id'],
+            'lecturer_nik' => $data['schedule_detail_lecturer_nik'],
+            'academic_period_id' => $data['schedule_detail_academic_period_id'],
+            'course_class' => $data['schedule_detail_course_class'],
+            'type' => $data['schedule_detail_type'],
+        ])->value('student_count');
+
+        ScheduleDetail::where([
+            'week_num' => $data['schedule_detail_week_num'],
+            'course_id' => $data['schedule_detail_course_id'],
+            'lecturer_nik' => $data['schedule_detail_lecturer_nik'],
+            'academic_period_id' => $data['schedule_detail_academic_period_id'],
+            'course_class' => $data['schedule_detail_course_class'],
+            'type' => $data['schedule_detail_type'],
+        ])->update([
+            'student_count' => $studentCount + $data['student_count'],
+        ]);
+
+        return redirect()->back()->with('success', 'Presensi berhasil diperbarui.');
     }
+
 
     /**
      * Remove the specified resource from storage.
