@@ -67,14 +67,15 @@
                                     <td>
                                         <a class="btn btn-sm btn-info"
                                            href="{{ route('schedule-detail.index', [
-                                                    'course_id' => $schedule->course_id,
-                                                    'lecturer_nik' => $schedule->lecturer_nik,
-                                                    'academic_period_id' => $schedule->academic_period_id,
-                                                    'course_class' => $schedule->course_class,
-                                                    'type' => $schedule->type,
-                                                ]) }}">
+                                                $schedule->course_id,
+                                                $schedule->academic_period_id,
+                                                $schedule->course_class,
+                                                $schedule->type,
+                                            ]) }}">
                                             Detail
                                         </a>
+
+
                                     </td>
                                     <td>
                                         <button class="btn btn-sm btn-warning"><i class="bi bi-pencil"></i></button>

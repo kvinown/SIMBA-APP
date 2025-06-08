@@ -8,6 +8,7 @@ use App\Models\Enrollment;
 use App\Models\Lecturer;
 use App\Models\ScheduleDetail;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Nette\Utils\Arrays;
 
 class ScheduleDetailController extends Controller
@@ -15,36 +16,37 @@ class ScheduleDetailController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request)
+    public function index($course_id, $academic_period_id, $course_class, $type)
     {
-        $validated = $request->validate([
-            'course_id' => 'required|string',
-            'lecturer_nik' => 'required|string',
-            'academic_period_id' => 'required|string',
-            'course_class' => 'required|string',
-            'type' => 'required|string',
-        ]);
+        $lecturer_nik = Auth::user()->nik;
+        $data = [
+            'course_id' => $course_id,
+            'lecturer_nik' => $lecturer_nik,
+            'academic_period_id' => $academic_period_id,
+            'course_class' => $course_class,
+            'type' => $type,
+        ];
 
-        $details = ScheduleDetail::where($validated)->get();
+        $details = ScheduleDetail::where($data)->get();
 
         // Ambil data dari model terkait berdasarkan ID
-        $course = Course::find($validated['course_id']);
-        $lecturer = Lecturer::where('nik', $validated['lecturer_nik'])->first();
-        $period = AcademicPeriod::find($validated['academic_period_id']);
+        $course = Course::find($data['course_id']);
+        $lecturer = Lecturer::where('nik', $data['lecturer_nik'])->first();
+        $period = AcademicPeriod::find($data['academic_period_id']);
 
-        $students = Enrollment::where('schedule_course_id', $validated['course_id'])
-            ->where('schedule_lecturer_nik', $validated['lecturer_nik'])
-            ->where('schedule_academic_period_id', $validated['academic_period_id'])
-            ->where('schedule_course_class', $validated['course_class'])
-            ->where('schedule_type', $validated['type'])
-            ->with('student') // penting: eager load relasi
+        $students = Enrollment::where('schedule_course_id', $data['course_id'])
+            ->where('schedule_lecturer_nik', $data['lecturer_nik'])
+            ->where('schedule_academic_period_id', $data['academic_period_id'])
+            ->where('schedule_course_class', $data['course_class'])
+            ->where('schedule_type', $data['type'])
+            ->with('student')
             ->get();
 
         $maxStudentCount = $students->count();
 
         return view('schedule_detail.index', [
             'details' => $details,
-            'info' => $validated,
+            'info' => $data,
             'course' => $course,
             'lecturer' => $lecturer,
             'period' => $period,

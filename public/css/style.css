@@ -1,22 +1,36 @@
 /* Layout wrapper */
+html, body {
+    height: 100%;
+    margin: 0;
+}
+
 #wrapper {
+    height: 100vh; /* Full viewport height */
     display: flex;
+    flex-direction: row;
 }
 
 #sidebar {
     width: 250px;
-    height: auto;
-    min-height: 100vh;
+    background-color: #f8f9fa; /* Light background */
+    height: 100%; /* Full height */
+    flex-shrink: 0;
+    display: block;
 }
+
+
 
 #page-content-wrapper {
     flex-grow: 1;
+    overflow-y: auto;
+    padding: 1rem;
 }
 
 /* Form control padding */
 .form-control {
     padding: 0 .75rem;
 }
+
 /* Vertical Progress Styles */
 .vertical-progress-container {
     display: flex;
@@ -40,22 +54,64 @@
 .vertical-progress-bar {
     background-color: #0d6efd;
     width: 100%;
-    color: white; /* Warna teks putih */
-    font-size: 0.65rem; /* Ukuran teks kecil */
+    color: white;
+    font-size: 0.65rem;
     display: flex;
-    align-items: flex-end; /* Posisi teks di bawah batang */
-    justify-content: center; /* Tengah secara horizontal */
-    padding-bottom: 2px; /* Jarak teks dari bawah */
+    align-items: flex-end;
+    justify-content: center;
+    padding-bottom: 2px;
     text-align: center;
     transition: height 0.6s ease;
     overflow: hidden;
 }
 
-
-
-
 .bar-label {
     text-align: center;
     margin-top: 5px;
     font-size: 12px;
+}
+
+/* DataTables Buttons */
+.dt-buttons .btn {
+    background-color: var(--bs-secondary);
+    border-color: var(--bs-secondary);
+    color: white;
+}
+
+.dt-buttons .btn:hover,
+.dt-buttons .btn:focus,
+.dt-buttons .btn:active {
+    background-color: var(--bs-secondary-hover, #5c636a);
+    border-color: var(--bs-secondary-hover, #5c636a);
+    color: white;
+}
+/* Style dropdown length menu (Show rows) */
+.dataTables_length label {
+    background-color: var(--bs-secondary); /* sama seperti button */
+    border-color: var(--bs-secondary);
+    color: #fff;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-weight: 500;
+}
+
+.dataTables_length select {
+    background-color: var(--bs-secondary);
+    border-color: var(--bs-secondary);
+    color: #fff;
+    border: none;
+    padding: 4px 8px;
+    margin-left: 4px;
+    border-radius: 4px;
+}
+
+/* Optional: hover effect */
+.dataTables_length select:hover {
+    background-color: var(--bs-secondary-hover, #5c636a);
+    border-color: var(--bs-secondary-hover, #5c636a);
+}
+
+.dataTables_length label select:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(13, 110, 253, 0.5);
 }

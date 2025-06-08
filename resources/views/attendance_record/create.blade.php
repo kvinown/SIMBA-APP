@@ -45,29 +45,46 @@
                                 <label class="form-label"><strong>Class</strong></label>
                             </td>
                             <td>
-                                <div class="row">
-                                    <div class="col-md">
-                                        <input type="text" class="form-control" value="{{ $schedule->course_class }}" disabled>
-                                    </div>
-                                    <div class="col-md">
-                                        <div class="row">
-                                            <div class="col-md-2">
-                                                <label class="form-label"><strong>Type: </strong></label>
-                                            </div>
-                                            <div class="col-md">
-                                                <input type="text" class="form-control " value="{{ $schedule->type }}" disabled>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
+                                <input type="text" class="form-control" value="{{ $schedule->course_class }}" disabled>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <label class="form-label mb-0"><strong>Type:</strong></label>
+                            </td>
+                            <td>
+                                <input type="text" class="form-control" value="{{ $schedule->type }}" disabled style="max-width: 200px;">
                             </td>
                         </tr>
 
                         <!-- Inputs -->
                         <tr>
                             <td><label for="week_num" class="form-label"><strong>Week</strong></label></td>
-                            <td><input type="number" id="week_num" name="week_num" class="form-control" value="{{ old('week_num', $nextWeekNum) }}" required></td>
+                            <td>
+                                @php
+                                    $selectedWeek = old('week_num', $nextWeekNum);
+                                @endphp
+                                <select id="week_num" name="week_num" class="form-control" required>
+                                    @for ($i = 1; $i <= 19; $i++)
+                                        @php
+                                            if ($i >= 1 && $i <= 14) {
+                                                $type = 'Pertemuan Reguler';
+                                            } elseif ($i == 15) {
+                                                $type = 'UTS';
+                                            } elseif ($i == 16) {
+                                                $type = 'UAS';
+                                            } else {
+                                                $type = 'Susulan/Perbaikan';
+                                            }
+                                        @endphp
+                                        <option value="{{ $i }}" {{ $selectedWeek == $i ? 'selected' : '' }}>
+                                            {{ $i }} - {{ $type }}
+                                        </option>
+                                    @endfor
+                                </select>
+                            </td>
                         </tr>
+
                         <tr>
                             <td><label for="schedule_date" class="form-label"><strong>Input Date</strong></label></td>
                             <td><input type="date" id="schedule_date" name="schedule_date" class="form-control" value="{{ date('Y-m-d') }}" required></td>
@@ -84,7 +101,7 @@
                             <td><label class="form-label"><strong>Student</strong></label></td>
                             <td>
                                 <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#studentModal">
-                                    Show Attendance Table
+                                    Show Students Table
                                 </button>
                             </td>
                         </tr>
@@ -97,7 +114,7 @@
                         </tr>
                         <tr>
                             <td><label for="topic" class="form-label"><strong>Topic</strong></label></td>
-                            <td><input type="text" id="topic" name="topic" class="form-control" required></td>
+                            <td><input type="text" id="topic" name="topic" class="form-control" required value="perkenalan"></td>
                         </tr>
                         <tr>
                             <td><label for="class_information" class="form-label"><strong>Class Information</strong></label></td>
@@ -125,12 +142,17 @@
                         </div>
                         <div class="modal-body">
                             <!-- Bulk Status Buttons -->
-                            <div class="mb-3">
-                                <strong>Set All Status:</strong>
-                                <button type="button" class="btn btn-outline-success btn-sm status-all-btn" onclick="setAllStatus(1, this)">Hadir</button>
-                                <button type="button" class="btn btn-outline-danger btn-sm status-all-btn" onclick="setAllStatus(0, this)">Tidak Hadir</button>
-                                <button type="button" class="btn btn-outline-warning btn-sm status-all-btn" onclick="setAllStatus(2, this)">Sakit</button>
-                                <button type="button" class="btn btn-outline-secondary btn-sm status-all-btn" onclick="setAllStatus(3, this)">Alpha</button>
+                            <div class="row mb-3">
+                                <div class="col-md-2">
+                                    <strong>Set All Status:</strong>
+                                </div>
+                                <div class="col-md">
+                                    <button type="button" class="btn btn-outline-success btn-sm status-all-btn" onclick="setAllStatus(1, this)">Hadir</button>
+                                    <button type="button" class="btn btn-outline-danger btn-sm status-all-btn" onclick="setAllStatus(0, this)">Tidak Hadir</button>
+                                    <button type="button" class="btn btn-outline-warning btn-sm status-all-btn" onclick="setAllStatus(2, this)">Sakit</button>
+                                    <button type="button" class="btn btn-outline-secondary btn-sm status-all-btn" onclick="setAllStatus(3, this)">Izin</button>
+
+                                </div>
                             </div>
                             <div class="table-responsive">
                                 <table class="table table-bordered">
@@ -157,8 +179,8 @@
                                                     <input type="radio" class="btn-check" name="status[{{ $student->student_id }}]" id="sakit_{{ $student->student_id }}" value="2" autocomplete="off">
                                                     <label class="btn btn-outline-warning btn-sm" for="sakit_{{ $student->student_id }}">Sakit</label>
 
-                                                    <input type="radio" class="btn-check" name="status[{{ $student->student_id }}]" id="alpha_{{ $student->student_id }}" value="3" autocomplete="off">
-                                                    <label class="btn btn-outline-secondary btn-sm" for="alpha_{{ $student->student_id }}">Alpha</label>
+                                                    <input type="radio" class="btn-check" name="status[{{ $student->student_id }}]" id="izini_{{ $student->student_id }}" value="3" autocomplete="off">
+                                                    <label class="btn btn-outline-secondary btn-sm" for="izini_{{ $student->student_id }}">Izin</label>
                                                 </div>
                                             </td>
                                         </tr>
@@ -178,16 +200,9 @@
             <button type="submit" class="btn btn-success mt-3">Save Presence</button>
         </form>
     </div>
+@endsection
 
-    <!-- Custom Styles -->
-    <style>
-        .status-all-btn.active {
-            background-color: #0d6efd !important;
-            color: white !important;
-            border-color: #0a58ca !important;
-        }
-    </style>
-
+@push('scripts')
     <!-- JS: Set All Status and Update Present Count -->
     <script>
         let activeSetAllButton = null;
@@ -199,7 +214,7 @@
                     0: `tidak_${id}`,
                     1: `hadir_${id}`,
                     2: `sakit_${id}`,
-                    3: `alpha_${id}`
+                    3: `izini_${id}`
                 }[value];
                 const radioInput = document.getElementById(radioId);
                 if (radioInput) {
@@ -217,10 +232,16 @@
         }
 
         function updatePresentCount() {
-            const checkedRadios = document.querySelectorAll('input[type="radio"]:checked[value="1"]');
-            const count = checkedRadios.length;
-            const presentCountInput = document.getElementById('presentCount');
-            presentCountInput.value = count;
+            const checkedRadios = document.querySelectorAll('input[type="radio"]:checked');
+
+            let count = 0;
+            checkedRadios.forEach(radio => {
+                if (radio.value === "1" || radio.value === "2" || radio.value === "3") {
+                    count++;
+                }
+            });
+
+            document.getElementById('presentCount').value = count;
         }
 
         window.addEventListener('DOMContentLoaded', () => {
@@ -239,4 +260,15 @@
             });
         });
     </script>
-@endsection
+@endpush
+
+@push('styles')
+    <!-- Custom Styles -->
+    <style>
+        .status-all-btn.active {
+            background-color: #0d6efd !important;
+            color: white !important;
+            border-color: #0a58ca !important;
+        }
+    </style>
+@endpush

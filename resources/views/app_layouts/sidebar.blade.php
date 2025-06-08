@@ -11,11 +11,11 @@
                 </button>
             </form>
         </li>
-        <li class="nav-item"><a href="{{ route('dash') }}" class="nav-link text-white">Dashboard</a></li>
-        <li class="nav-item"><a href="{{ route('example') }}" class="nav-link text-white">Example</a></li>
-        <li class="nav-item"><a href="{{ route('lecturer.index') }}" class="nav-link text-white">Lecturer</a></li>
         <li class="nav-item"><a href="{{ route('schedule.index') }}" class="nav-link text-white">Schedule</a></li>
-        <li class="nav-item"><a href="{{ route('period.index') }}" class="nav-link text-white">Academic Period</a></li>
-        <li class="nav-item"><a href="{{ route('enrollment.index') }}" class="nav-link text-white">Enrollment</a></li>
+{{--        <li class="nav-item"><a href="{{ route('dash') }}" class="nav-link text-white">Dashboard</a></li>--}}
+{{--        <li class="nav-item"><a href="{{ route('example') }}" class="nav-link text-white">Example</a></li>--}}
+{{--        <li class="nav-item"><a href="{{ route('lecturer.index') }}" class="nav-link text-white">Lecturer</a></li>--}}
+{{--        <li class="nav-item"><a href="{{ route('period.index') }}" class="nav-link text-white">Academic Period</a></li>--}}
+{{--        <li class="nav-item"><a href="{{ route('enrollment.index') }}" class="nav-link text-white">Enrollment</a></li>--}}
     </ul>
 </div>

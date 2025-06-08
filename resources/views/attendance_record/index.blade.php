@@ -44,13 +44,17 @@
                         <td><strong>Type:</strong></td>
                         <td>{{ $info['schedule_detail_type'] }}</td>
                     </tr>
+                    <tr>
+                        <td><strong>Student Count:</strong></td>
+                        <td>{{ $student_count }}</td>
+                    </tr>
                     </tbody>
                 </table>
             </div>
         </div>
 
         <div class="table-responsive">
-            <table class="table table-bordered">
+            <table class="table table-bordered datatable-export">
                 <thead class="table-dark">
                 <tr>
                     <th>NRP</th>
@@ -76,7 +80,7 @@
                                     Sakit
                                     @break
                                 @case(3)
-                                    Alpha
+                                    Izin
                                     @break
                             @endswitch
                         </td>
@@ -94,21 +98,18 @@
 
                                 @php $uid = uniqid(); @endphp
                                 <div class="btn-group" role="group" aria-label="Status Kehadiran">
-                                    <input type="radio" class="btn-check" name="status" id="hadir_{{ $attendance->id }}_{{ $uid }}" value="1" autocomplete="off" {{ $attendance->status == 1 ? 'checked' : '' }}>
+                                    <input type="radio" class="btn-check" name="status" id="hadir_{{ $attendance->id }}_{{ $uid }}" value="1" autocomplete="off" {{ $attendance->status == 1 ? 'checked' : '' }} onchange="this.form.submit()">
                                     <label class="btn btn-outline-success btn-sm" for="hadir_{{ $attendance->id }}_{{ $uid }}">Hadir</label>
 
-                                    <input type="radio" class="btn-check" name="status" id="tidak_{{ $attendance->id }}_{{ $uid }}" value="0" autocomplete="off" {{ $attendance->status == 0 ? 'checked' : '' }}>
+                                    <input type="radio" class="btn-check" name="status" id="tidak_{{ $attendance->id }}_{{ $uid }}" value="0" autocomplete="off" {{ $attendance->status == 0 ? 'checked' : '' }} onchange="this.form.submit()">
                                     <label class="btn btn-outline-danger btn-sm" for="tidak_{{ $attendance->id }}_{{ $uid }}">Tidak Hadir</label>
 
-                                    <input type="radio" class="btn-check" name="status" id="sakit_{{ $attendance->id }}_{{ $uid }}" value="2" autocomplete="off" {{ $attendance->status == 2 ? 'checked' : '' }}>
+                                    <input type="radio" class="btn-check" name="status" id="sakit_{{ $attendance->id }}_{{ $uid }}" value="2" autocomplete="off" {{ $attendance->status == 2 ? 'checked' : '' }} onchange="this.form.submit()">
                                     <label class="btn btn-outline-warning btn-sm" for="sakit_{{ $attendance->id }}_{{ $uid }}">Sakit</label>
 
-                                    <input type="radio" class="btn-check" name="status" id="alpha_{{ $attendance->id }}_{{ $uid }}" value="3" autocomplete="off" {{ $attendance->status == 3 ? 'checked' : '' }}>
-                                    <label class="btn btn-outline-secondary btn-sm" for="alpha_{{ $attendance->id }}_{{ $uid }}">Alpha</label>
+                                    <input type="radio" class="btn-check" name="status" id="izin_{{ $attendance->id }}_{{ $uid }}" value="3" autocomplete="off" {{ $attendance->status == 3 ? 'checked' : '' }} onchange="this.form.submit()">
+                                    <label class="btn btn-outline-secondary btn-sm" for="izin_{{ $attendance->id }}_{{ $uid }}">Izin</label>
                                 </div>
-
-
-                                <button type="submit" class="btn btn-sm btn-primary mt-2">Simpan</button>
                             </form>
                         </td>
                     </tr>
