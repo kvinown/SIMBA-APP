@@ -82,9 +82,6 @@ use Illuminate\Support\Facades\Http;
                 'type' => $type,
             ];
 
-            // REVISI: Gunakan variabel biasa, bukan const, untuk perhitungan di dalam method
-            $maxAbsencesAllowed = floor(self::TOTAL_MEETINGS * 0.25);
-
             $students = Enrollment::where('schedule_course_id', $course_id)
                 ->where('schedule_lecturer_nik', $lecturer_nik)
                 ->where('schedule_academic_period_id', $academic_period_id)
@@ -97,6 +94,7 @@ use Illuminate\Support\Facades\Http;
             $latestWeekNum = ScheduleDetail::where($data)->max('week_num');
             $nextWeekNum = $latestWeekNum ? $latestWeekNum + 1 : 1;
 
+            // --- REVISI: Menyamakan logika & struktur data dengan ScheduleDetailController ---
             $riskyStudents = ['warning' => [], 'cekal' => []];
             $studentAttendanceData = [];
 
@@ -114,24 +112,33 @@ use Illuminate\Support\Facades\Http;
                 $student_id = $student->student_id;
                 $records = $allAttendanceRecords->get($student_id, collect());
                 $presentCount = $records->whereIn('status', [1, 2, 3])->count();
-                $absentCount = $records->where('status', 0)->count();
-                $currentPercentage = ($meetingsSoFar > 0) ? round(($presentCount / $meetingsSoFar) * 100) : 100;
+
+                // Hitung persentase kehadiran saat ini
+                $currentPercentage = ($meetingsSoFar > 0) ? ($presentCount / $meetingsSoFar) * 100 : 100;
+
+                // Hitung persentase hipotetis jika mahasiswa absen di pertemuan berikutnya
+                $futureMeetings = $meetingsSoFar + 1;
+                $futurePercentage = ($futureMeetings > 0) ? ($presentCount / $futureMeetings) * 100 : 0;
 
                 $status = 'safe';
-                // REVISI: Gunakan variabel $maxAbsencesAllowed
-                if ($absentCount > $maxAbsencesAllowed) {
+                // Cekal: Jika persentase saat ini sudah di bawah 75%
+                if ($currentPercentage < 75) {
                     $status = 'cekal';
                     $riskyStudents['cekal'][] = $student;
-                } elseif ($absentCount == $maxAbsencesAllowed) {
+                }
+                // Warning: Jika persentase saat ini >= 75%, TAPI akan menjadi < 75% jika absen lagi
+                elseif ($currentPercentage >= 75 && $futurePercentage < 75) {
                     $status = 'warning';
                     $riskyStudents['warning'][] = $student;
                 }
 
+                // Simpan data untuk ditampilkan di view
                 $studentAttendanceData[$student_id] = [
                     'status' => $status,
-                    'percentage' => $currentPercentage,
+                    'percentage' => round($currentPercentage),
                 ];
             }
+            // --- AKHIR REVISI ---
 
             return view('attendance_record.create', [
                 'students' => $students,
@@ -142,6 +149,7 @@ use Illuminate\Support\Facades\Http;
                 'studentAttendanceData' => $studentAttendanceData,
             ]);
         }
+
 
 
         /**

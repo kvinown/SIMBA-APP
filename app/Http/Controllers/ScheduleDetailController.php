@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\AcademicPeriod;
+use App\Models\AttendanceRecord;
 use App\Models\Course;
 use App\Models\Enrollment;
 use App\Models\Lecturer;
@@ -28,13 +29,11 @@ class ScheduleDetailController extends Controller
             'type' => $type,
         ];
 
-        $details = ScheduleDetail::where($data)->get();
-
-        // Ambil data dari model terkait berdasarkan ID
+        // --- Logika yang sudah ada ---
+        $details = ScheduleDetail::where($data)->orderBy('week_num', 'asc')->get();
         $course = Course::find($data['course_id']);
         $lecturer = Lecturer::where('nik', $data['lecturer_nik'])->first();
         $period = AcademicPeriod::find($data['academic_period_id']);
-
         $students = Enrollment::where('schedule_course_id', $data['course_id'])
             ->where('schedule_lecturer_nik', $data['lecturer_nik'])
             ->where('schedule_academic_period_id', $data['academic_period_id'])
@@ -42,8 +41,57 @@ class ScheduleDetailController extends Controller
             ->where('schedule_type', $data['type'])
             ->with('student')
             ->get();
-
         $maxStudentCount = $students->count();
+
+        // --- REVISI: Logika Menghitung Mahasiswa Berisiko Berdasarkan Persentase Dinamis ---
+        $riskyStudents = [
+            'warning' => [],
+            'cekal' => [],
+        ];
+        $studentAttendanceData = [];
+
+        $allAttendanceRecords = AttendanceRecord::where([
+            'schedule_detail_course_id' => $course_id,
+            'schedule_detail_lecturer_nik' => $lecturer_nik,
+            'schedule_detail_academic_period_id' => $academic_period_id,
+            'schedule_detail_course_class' => $course_class,
+            'schedule_detail_type' => $type,
+        ])->get()->groupBy('student_id');
+
+        $meetingsSoFar = $details->count();
+
+        foreach ($students as $student) {
+            $student_id = $student->student_id;
+            $records = $allAttendanceRecords->get($student_id, collect());
+
+            $presentCount = $records->whereIn('status', [1, 2, 3])->count();
+
+            // Hitung persentase kehadiran saat ini
+            $currentPercentage = ($meetingsSoFar > 0) ? ($presentCount / $meetingsSoFar) * 100 : 100;
+
+            // Hitung persentase hipotetis jika mahasiswa absen di pertemuan berikutnya
+            $futureMeetings = $meetingsSoFar + 1;
+            $futurePercentage = ($futureMeetings > 0) ? ($presentCount / $futureMeetings) * 100 : 0;
+
+            $status = 'safe';
+            // Cekal: Jika persentase saat ini sudah di bawah 75%
+            if ($currentPercentage < 75) {
+                $status = 'cekal';
+                $riskyStudents['cekal'][] = $student;
+            }
+            // Warning: Jika persentase saat ini >= 75%, TAPI akan menjadi < 75% jika absen lagi
+            elseif ($currentPercentage >= 75 && $futurePercentage < 75) {
+                $status = 'warning';
+                $riskyStudents['warning'][] = $student;
+            }
+
+            // Simpan data untuk ditampilkan di view
+            $studentAttendanceData[$student_id] = [
+                'status' => $status,
+                'percentage' => round($currentPercentage),
+            ];
+        }
+        // --- AKHIR REVISI ---
 
         return view('schedule_detail.index', [
             'details' => $details,
@@ -52,6 +100,8 @@ class ScheduleDetailController extends Controller
             'lecturer' => $lecturer,
             'period' => $period,
             'maxStudentCount' => $maxStudentCount,
+            'riskyStudents' => $riskyStudents,
+            'studentAttendanceData' => $studentAttendanceData,
         ]);
     }
 
