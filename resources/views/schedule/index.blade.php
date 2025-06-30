@@ -50,7 +50,6 @@
                                 <th>End Time</th>
                                 <th>Exam</th>
                                 <th>Detail</th>
-                                <th>Action</th>
                             </tr>
                             </thead>
                             <tbody>
@@ -59,7 +58,7 @@
                                     <td>{{ $schedule->course_class }}</td>
                                     <td>{{ $schedule->type }}</td>
                                     <td>{{ $schedule->room->name ?? '-' }}</td>
-                                    <td>{{ $schedule->addtional_info }}</td>
+                                    <td class="col-md-3">{{ $schedule->additional_info }}</td>
                                     <td>{{ $schedule->class_day }}</td>
                                     <td>{{ $schedule->start_time }}</td>
                                     <td>{{ $schedule->end_time }}</td>
@@ -74,12 +73,6 @@
                                             ]) }}">
                                             Detail
                                         </a>
-
-
-                                    </td>
-                                    <td>
-                                        <button class="btn btn-sm btn-warning"><i class="bi bi-pencil"></i></button>
-                                        <button class="btn btn-sm btn-danger"><i class="bi bi-trash"></i></button>
                                     </td>
                                 </tr>
                             @endforeach

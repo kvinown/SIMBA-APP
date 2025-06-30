@@ -42,6 +42,7 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/enrollment', [\App\Http\Controllers\EnrollmentController::class, 'index'])->name('enrollment.index');
 
+    Route::get('/attendance/check-week', [AttendanceRecordController::class, 'checkWeekExistence'])->name('attendance.checkWeek');
     Route::get('/attendance-record/create/{course_id}/{academic_period_id}/{course_class}/{type}',
         [AttendanceRecordController::class, 'create'])
         ->name('attendance-record.create');

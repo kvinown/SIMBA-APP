@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+
     <title>{{ config('app.name') }}</title>
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
@@ -27,7 +28,7 @@
         <nav class="navbar navbar-expand-lg navbar-light bg-light mb-4">
             <button class="btn btn-primary" id="sidebarToggle">☰</button>
 
-            <x-back-button>Back</x-back-button>
+{{--            <x-back-button>Back</x-back-button>--}}
         </nav>
 
         @yield('content')

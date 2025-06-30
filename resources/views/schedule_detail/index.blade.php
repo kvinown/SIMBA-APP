@@ -15,6 +15,8 @@
         </div>
     @endif
 
+    <a href="{{ route('schedule.index') }}" class="btn btn-outline-secondary ms-3"><i class="bi bi-arrow-left"></i> {{ $slot ?? 'Back' }}</a>
+
     <div class="container">
         <h1>Presence Page</h1>
 

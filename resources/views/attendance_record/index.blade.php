@@ -11,10 +11,18 @@
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
     @endif
+    <a href="{{ request('from', route('schedule-detail.index', [
+        'course_id' => $info['schedule_detail_course_id'],
+        'academic_period_id' => $info['schedule_detail_academic_period_id'],
+        'course_class' => $info['schedule_detail_course_class'],
+        'type' => $info['schedule_detail_type']
+    ])) }}" class="btn btn-outline-secondary ms-3">
+            <i class="bi bi-arrow-left"></i> {{ $slot ?? 'Back' }}
+    </a>
+
 
     <div class="container">
         <h1>Presence Detail Page</h1>
-
 
         <div class="card mb-4">
             <div class="card-body">
@@ -65,7 +73,7 @@
                 </thead>
                 <tbody>
                 @foreach ($attendances as $attendance)
-                    <tr>
+                    <tr id="row_{{ $attendance->student_id }}">
                         <td>{{ $attendance->student->id }}</td>
                         <td>{{ $attendance->student->name }}</td>
                         <td>
@@ -119,3 +127,29 @@
         </div>
     </div>
 @endsection
+
+@push('scripts')
+    <script>
+        // Simpan ID baris ke localStorage saat radio diklik
+        document.querySelectorAll('input[type="radio"]').forEach(function(radio) {
+            radio.addEventListener('click', function () {
+                const row = radio.closest('tr');
+                if (row && row.id) {
+                    localStorage.setItem('scrollToRow', row.id);
+                }
+            });
+        });
+
+        // Setelah reload, scroll ke baris yang disimpan
+        window.addEventListener('load', function () {
+            const scrollId = localStorage.getItem('scrollToRow');
+            if (scrollId) {
+                const targetRow = document.getElementById(scrollId);
+                if (targetRow) {
+                    targetRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+                localStorage.removeItem('scrollToRow');
+            }
+        });
+    </script>
+@endpush

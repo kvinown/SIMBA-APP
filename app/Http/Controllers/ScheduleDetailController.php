@@ -7,6 +7,7 @@ use App\Models\Course;
 use App\Models\Enrollment;
 use App\Models\Lecturer;
 use App\Models\ScheduleDetail;
+use App\Models\Student;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Nette\Utils\Arrays;
@@ -76,21 +77,65 @@ class ScheduleDetailController extends Controller
             'type' => 'required|string',
             'week_num' => 'required|integer',
             'schedule_date' => 'required|date',
-            'topic' => 'required|string|max:255',
+            'topic' => ['required', 'string', 'max:255'],
             'course_start_time' => 'required|date_format:H:i',
             'course_end_time' => 'required|date_format:H:i',
             'student_count' => 'required|integer',
             'class_information' => 'required|string',
-            'status' => 'required|array', // tetap bawa ini untuk attendance nanti
+            'status' => 'required|array',
+        ], [
+            'status.required' => 'Silakan pilih status kehadiran untuk semua mahasiswa.',
         ]);
+
+        $students = Enrollment::where('schedule_course_id', $validated['course_id'])
+            ->where('schedule_lecturer_nik', $validated['lecturer_nik'])
+            ->where('schedule_academic_period_id', $validated['academic_period_id'])
+            ->where('schedule_course_class', $validated['course_class'])
+            ->where('schedule_type', $validated['type'])
+            ->pluck('student_id');
+
+        $missingStatus = [];
+
+        foreach ($students as $student_id) {
+            if (!array_key_exists($student_id, $validated['status'])) {
+                $student = Student::find($student_id);
+                $missingStatus[] = $student ? "$student->name ($student_id)" : $student_id;
+            }
+        }
+
+        if (!empty($missingStatus)) {
+            $message = 'Status kehadiran belum diisi untuk: ' . implode(', ', $missingStatus);
+            return redirect()->back()
+                ->withErrors(['status' => $message])
+                ->withInput();
+        }
+
+
+        $exists = ScheduleDetail::where([
+            'course_id' => $validated['course_id'],
+            'lecturer_nik' => $validated['lecturer_nik'],
+            'academic_period_id' => $validated['academic_period_id'],
+            'course_class' => $validated['course_class'],
+            'type' => $validated['type'],
+            'week_num' => $validated['week_num'],
+        ])->exists();
+
+        if ($exists) {
+            return redirect()->route('attendance-record.create', [
+                'course_id' => $validated['course_id'],
+                'academic_period_id' => $validated['academic_period_id'],
+                'course_class' => $validated['course_class'],
+                'type' => $validated['type'],
+            ])->withErrors(['duplicate' => 'Data untuk minggu ini sudah ada.'])->withInput();
+        }
 
         // Simpan ke ScheduleDetail
         $scheduleDetail = new ScheduleDetail($validated);
         $scheduleDetail->save();
 
-        // Redirect ke route AttendanceRecordController@store, pakai session atau redirect dengan data
         return redirect()->route('attendance-record.store')->withInput($validated);
     }
+
 
     /**
      * Display the specified resource.
