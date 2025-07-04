@@ -86,8 +86,7 @@
                                             @foreach ($riskyStudents['warning'] as $student)
                                                 <tr>
                                                     <td>{{ $student->student->name ?? '-' }} ({{$student->student_id}})</td>
-                                                    {{-- REVISI: Menggunakan variabel yang benar dan format teks yang sesuai --}}
-                                                    <td class="text-end"><strong> Kehadiran {{ $studentAttendanceData[$student->student_id]['percentage'] }}%</strong></td>
+                                                    <td class="text-end"><strong> Kehadiran {{ $studentAttendanceData[$student->student_id]['percentage'] ?? 'N/A' }}%</strong></td>
                                                 </tr>
                                             @endforeach
                                             </tbody>
@@ -108,8 +107,7 @@
                                             @foreach ($riskyStudents['cekal'] as $student)
                                                 <tr>
                                                     <td>{{ $student->student->name ?? '-' }} ({{$student->student_id}})</td>
-                                                    {{-- REVISI: Menggunakan variabel yang benar dan format teks yang sesuai --}}
-                                                    <td class="text-end"><strong>Kehadiran {{ $studentAttendanceData[$student->student_id]['percentage']  }}%</strong></td>
+                                                    <td class="text-end"><strong>Kehadiran {{ $studentAttendanceData[$student->student_id]['percentage'] ?? 'N/A' }}%</strong></td>
                                                 </tr>
                                             @endforeach
                                             </tbody>

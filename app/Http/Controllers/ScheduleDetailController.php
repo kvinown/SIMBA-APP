@@ -43,53 +43,53 @@ class ScheduleDetailController extends Controller
             ->get();
         $maxStudentCount = $students->count();
 
-        // --- REVISI: Logika Menghitung Mahasiswa Berisiko Berdasarkan Persentase Dinamis ---
+        // --- Logika Menghitung Mahasiswa Berisiko ---
         $riskyStudents = [
             'warning' => [],
             'cekal' => [],
         ];
         $studentAttendanceData = [];
 
-        $allAttendanceRecords = AttendanceRecord::where([
-            'schedule_detail_course_id' => $course_id,
-            'schedule_detail_lecturer_nik' => $lecturer_nik,
-            'schedule_detail_academic_period_id' => $academic_period_id,
-            'schedule_detail_course_class' => $course_class,
-            'schedule_detail_type' => $type,
-        ])->get()->groupBy('student_id');
-
         $meetingsSoFar = $details->count();
 
-        foreach ($students as $student) {
-            $student_id = $student->student_id;
-            $records = $allAttendanceRecords->get($student_id, collect());
+        // REVISI: Hanya jalankan logika jika sudah ada pertemuan
+        if ($meetingsSoFar > 2) {
+            $allAttendanceRecords = AttendanceRecord::where([
+                'schedule_detail_course_id' => $course_id,
+                'schedule_detail_lecturer_nik' => $lecturer_nik,
+                'schedule_detail_academic_period_id' => $academic_period_id,
+                'schedule_detail_course_class' => $course_class,
+                'schedule_detail_type' => $type,
+            ])->get()->groupBy('student_id');
 
-            $presentCount = $records->whereIn('status', [1, 2, 3])->count();
+            foreach ($students as $student) {
+                $student_id = $student->student_id;
+                $records = $allAttendanceRecords->get($student_id, collect());
 
-            // Hitung persentase kehadiran saat ini
-            $currentPercentage = ($meetingsSoFar > 0) ? ($presentCount / $meetingsSoFar) * 100 : 100;
+                $presentCount = $records->whereIn('status', [1, 2, 3])->count();
 
-            // Hitung persentase hipotetis jika mahasiswa absen di pertemuan berikutnya
-            $futureMeetings = $meetingsSoFar + 1;
-            $futurePercentage = ($futureMeetings > 0) ? ($presentCount / $futureMeetings) * 100 : 0;
+                // Hitung persentase kehadiran saat ini
+                $currentPercentage = ($presentCount / $meetingsSoFar) * 100;
 
-            $status = 'safe';
-            // Cekal: Jika persentase saat ini sudah di bawah 75%
-            if ($currentPercentage < 75) {
-                $status = 'cekal';
-                $riskyStudents['cekal'][] = $student;
+                // Hitung persentase hipotetis jika mahasiswa absen di pertemuan berikutnya
+                $futureMeetings = $meetingsSoFar + 1;
+                $futurePercentage = ($presentCount / $futureMeetings) * 100;
+
+                $status = 'safe';
+                if ($currentPercentage < 75) {
+                    $status = 'cekal';
+                    $riskyStudents['cekal'][] = $student;
+                }
+                elseif ($currentPercentage >= 75 && $futurePercentage < 75) {
+                    $status = 'warning';
+                    $riskyStudents['warning'][] = $student;
+                }
+
+                $studentAttendanceData[$student_id] = [
+                    'status' => $status,
+                    'percentage' => round($currentPercentage),
+                ];
             }
-            // Warning: Jika persentase saat ini >= 75%, TAPI akan menjadi < 75% jika absen lagi
-            elseif ($currentPercentage >= 75 && $futurePercentage < 75) {
-                $status = 'warning';
-                $riskyStudents['warning'][] = $student;
-            }
-
-            // Simpan data untuk ditampilkan di view
-            $studentAttendanceData[$student_id] = [
-                'status' => $status,
-                'percentage' => round($currentPercentage),
-            ];
         }
         // --- AKHIR REVISI ---
 

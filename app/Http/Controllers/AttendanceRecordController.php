@@ -13,9 +13,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
 
-    class AttendanceRecordController extends Controller
+class AttendanceRecordController extends Controller
 {
-    private const TOTAL_MEETINGS = 14;
     /**
      * Display a listing of the resource.
      */
@@ -67,37 +66,41 @@ use Illuminate\Support\Facades\Http;
     /**
      * Show the form for creating a new resource.
      */
-        public function create(
-            $course_id,
-            $academic_period_id,
-            $course_class,
-            $type
-        ) {
-            $lecturer_nik = Auth::user()->nik;
-            $data = [
-                'course_id' => $course_id,
-                'lecturer_nik' => $lecturer_nik,
-                'academic_period_id' => $academic_period_id,
-                'course_class' => $course_class,
-                'type' => $type,
-            ];
+    public function create(
+        $course_id,
+        $academic_period_id,
+        $course_class,
+        $type
+    ) {
+        $lecturer_nik = Auth::user()->nik;
+        $data = [
+            'course_id' => $course_id,
+            'lecturer_nik' => $lecturer_nik,
+            'academic_period_id' => $academic_period_id,
+            'course_class' => $course_class,
+            'type' => $type,
+        ];
 
-            $students = Enrollment::where('schedule_course_id', $course_id)
-                ->where('schedule_lecturer_nik', $lecturer_nik)
-                ->where('schedule_academic_period_id', $academic_period_id)
-                ->where('schedule_course_class', $course_class)
-                ->where('schedule_type', $type)
-                ->with('student')->get();
+        $students = Enrollment::where('schedule_course_id', $course_id)
+            ->where('schedule_lecturer_nik', $lecturer_nik)
+            ->where('schedule_academic_period_id', $academic_period_id)
+            ->where('schedule_course_class', $course_class)
+            ->where('schedule_type', $type)
+            ->with('student')->get();
 
-            $schedule = Schedule::where($data)->first();
+        $schedule = Schedule::where($data)->first();
 
-            $latestWeekNum = ScheduleDetail::where($data)->max('week_num');
-            $nextWeekNum = $latestWeekNum ? $latestWeekNum + 1 : 1;
+        $latestWeekNum = ScheduleDetail::where($data)->max('week_num');
+        $nextWeekNum = $latestWeekNum ? $latestWeekNum + 1 : 1;
 
-            // --- REVISI: Menyamakan logika & struktur data dengan ScheduleDetailController ---
-            $riskyStudents = ['warning' => [], 'cekal' => []];
-            $studentAttendanceData = [];
+        // --- REVISI: Menyamakan logika & struktur data dengan ScheduleDetailController ---
+        $riskyStudents = ['warning' => [], 'cekal' => []];
+        $studentAttendanceData = [];
 
+        $meetingsSoFar = ScheduleDetail::where($data)->count();
+
+        // REVISI: Hanya jalankan logika jika sudah ada pertemuan
+        if ($meetingsSoFar > 2) {
             $allAttendanceRecords = AttendanceRecord::where([
                 'schedule_detail_course_id' => $course_id,
                 'schedule_detail_lecturer_nik' => $lecturer_nik,
@@ -106,19 +109,17 @@ use Illuminate\Support\Facades\Http;
                 'schedule_detail_type' => $type,
             ])->get()->groupBy('student_id');
 
-            $meetingsSoFar = ScheduleDetail::where($data)->count();
-
             foreach ($students as $student) {
                 $student_id = $student->student_id;
                 $records = $allAttendanceRecords->get($student_id, collect());
                 $presentCount = $records->whereIn('status', [1, 2, 3])->count();
 
                 // Hitung persentase kehadiran saat ini
-                $currentPercentage = ($meetingsSoFar > 0) ? ($presentCount / $meetingsSoFar) * 100 : 100;
+                $currentPercentage = ($presentCount / $meetingsSoFar) * 100;
 
                 // Hitung persentase hipotetis jika mahasiswa absen di pertemuan berikutnya
                 $futureMeetings = $meetingsSoFar + 1;
-                $futurePercentage = ($futureMeetings > 0) ? ($presentCount / $futureMeetings) * 100 : 0;
+                $futurePercentage = ($presentCount / $futureMeetings) * 100;
 
                 $status = 'safe';
                 // Cekal: Jika persentase saat ini sudah di bawah 75%
@@ -138,51 +139,53 @@ use Illuminate\Support\Facades\Http;
                     'percentage' => round($currentPercentage),
                 ];
             }
-            // --- AKHIR REVISI ---
-
-            return view('attendance_record.create', [
-                'students' => $students,
-                'schedule' => $schedule,
-                'data' => $data,
-                'nextWeekNum' => $nextWeekNum,
-                'riskyStudents' => $riskyStudents,
-                'studentAttendanceData' => $studentAttendanceData,
-            ]);
         }
+        // --- AKHIR REVISI ---
+
+
+        return view('attendance_record.create', [
+            'students' => $students,
+            'schedule' => $schedule,
+            'data' => $data,
+            'nextWeekNum' => $nextWeekNum,
+            'riskyStudents' => $riskyStudents,
+            'studentAttendanceData' => $studentAttendanceData,
+        ]);
+    }
 
 
 
-        /**
-         * Check if attendance for a specific week already exists.
-         * This is intended to be called via AJAX.
-         */
-        public function checkWeekExistence(Request $request)
-        {
-            // Validasi input dari request AJAX
-            $validated = $request->validate([
-                'week_num' => 'required|integer',
-                'course_id' => 'required|string',
-                'academic_period_id' => 'required|string',
-                'course_class' => 'required|string',
-                'type' => 'required|string',
-            ]);
+    /**
+     * Check if attendance for a specific week already exists.
+     * This is intended to be called via AJAX.
+     */
+    public function checkWeekExistence(Request $request)
+    {
+        // Validasi input dari request AJAX
+        $validated = $request->validate([
+            'week_num' => 'required|integer',
+            'course_id' => 'required|string',
+            'academic_period_id' => 'required|string',
+            'course_class' => 'required|string',
+            'type' => 'required|string',
+        ]);
 
-            // Dapatkan NIK dosen yang sedang login
-            $lecturer_nik = Auth::user()->nik;
+        // Dapatkan NIK dosen yang sedang login
+        $lecturer_nik = Auth::user()->nik;
 
-            // Lakukan pengecekan ke tabel schedule_details
-            $exists = ScheduleDetail::where([
-                'week_num' => $validated['week_num'],
-                'course_id' => $validated['course_id'],
-                'lecturer_nik' => $lecturer_nik,
-                'academic_period_id' => $validated['academic_period_id'],
-                'course_class' => $validated['course_class'],
-                'type' => $validated['type'],
-            ])->exists(); // exists() lebih efisien karena hanya mengecek keberadaan data
+        // Lakukan pengecekan ke tabel schedule_details
+        $exists = ScheduleDetail::where([
+            'week_num' => $validated['week_num'],
+            'course_id' => $validated['course_id'],
+            'lecturer_nik' => $lecturer_nik,
+            'academic_period_id' => $validated['academic_period_id'],
+            'course_class' => $validated['course_class'],
+            'type' => $validated['type'],
+        ])->exists(); // exists() lebih efisien karena hanya mengecek keberadaan data
 
-            // Kembalikan response dalam format JSON
-            return response()->json(['exists' => $exists]);
-        }
+        // Kembalikan response dalam format JSON
+        return response()->json(['exists' => $exists]);
+    }
 
 
 
