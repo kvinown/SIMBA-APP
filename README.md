@@ -1,66 +1,96 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+<div align="center">
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+# Pengembangan Modul Presensi Mahasiswa
 
-## About Laravel
+Aplikasi web yang dikembangkan untuk Laporan Kerja Praktik dengan studi kasus pada sistem berita acara akademik di Universitas Kristen Maranatha.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+</div>
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Penulis
+* **Kevin Owen** ([@kvinown](https://github.com/kvinown))
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+---
 
-## Learning Laravel
+## 🛠️ Komponen Teknologi
+* **Framework Laravel:** v10.x
+* **PHP:** v8.1+
+* **Database:** MySQL
+* **Frontend:** Blade, Bootstrap 5, CSS, JavaScript
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+---
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+## 🎯 Fungsionalitas Utama Pengguna (Dosen)
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+Sistem ini dirancang untuk digunakan oleh Dosen dengan kapabilitas sebagai berikut:
 
-## Laravel Sponsors
+- **Mencatat Presensi**: Mengisi kehadiran mahasiswa secara individual per pertemuan.
+- **Melihat Detail Presensi**: Memeriksa rekap kehadiran dan detail pertemuan yang telah berlangsung.
+- **Memperbarui Status Kehadiran**: Mengubah status mahasiswa jika ada kesalahan input.
+- **Melihat Visualisasi Data**: Memantau tren kehadiran mahasiswa melalui grafik.
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+---
 
-### Premium Partners
+## ⚙️ Instalasi dan Pengaturan
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
+### Prasyarat
+- [PHP](https://www.php.net/) (versi 8.1 atau lebih baru)
+- [Composer](https://getcomposer.org/)
+- [Node.js](https://nodejs.org/) & [NPM](https://www.npmjs.com/) (Opsional, untuk manajemen aset frontend)
+- [MySQL](https://www.mysql.com/)
 
-## Contributing
+### Langkah-langkah Instalasi
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+1.  **Clone repository ini**
+    ```bash
+    git clone https://github.com/kvinown/SIMBA-APP
+    ```
 
-## Code of Conduct
+2.  **Pindah ke direktori proyek**
+    ```bash
+    cd SIMBA-APP
+    ```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+3.  **Install dependencies via Composer**
+    ```bash
+    composer install
+    ```
 
-## Security Vulnerabilities
+4.  **Buat file environment**
+    Salin file `.env.example` menjadi `.env`.
+    ```bash
+    cp .env.example .env
+    ```
+    Kemudian, buka file `.env` dan sesuaikan konfigurasi database Anda.
+    ```env
+    DB_CONNECTION=mysql
+    DB_HOST=127.0.0.1
+    DB_PORT=3306
+    DB_DATABASE=db_bap
+    DB_USERNAME=username_db_anda
+    DB_PASSWORD=password_db_anda
+    ```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+5.  **Generate application key**
+    ```bash
+    php artisan key:generate
+    ```
 
-## License
+6.  **Jalankan migrasi database**
+    Perintah ini akan membuat semua tabel yang dibutuhkan oleh aplikasi. Pastikan Anda sudah membuat database kosong di MySQL sesuai nama di file `.env`.
+    ```bash
+    php artisan migrate
+    ```
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+7.  **(Opsional) Jalankan database seeder**
+    Jika Anda memiliki data awal (contoh: data admin, data master), jalankan seeder.
+    ```bash
+    php artisan db:seed
+    ```
+
+8.  **Jalankan server pengembangan**
+    ```bash
+    php artisan serve
+    ```
+    Aplikasi sekarang dapat diakses melalui `http://127.0.0.1:8000`.
+
+---
